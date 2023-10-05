@@ -1,0 +1,16 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{713C5F21-422D-56C4-9FB3-4E9F09450DA4}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CGGame",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
+		}
+	]
+}
