@@ -2,6 +2,9 @@
 
 
 #include "CGCoin.h"
+
+#include "Components/StaticMeshComponent.h"
+
 #include "CGGamePlayer.h"
 
 // Sets default values
@@ -10,6 +13,8 @@ ACGCoin::ACGCoin()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	CoinMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CoinMesh"));
+	RootComponent = CoinMesh;
 }
 
 // Called when the game starts or when spawned
@@ -30,13 +35,14 @@ void ACGCoin::Tick(float DeltaTime)
 
 void ACGCoin::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Red, OtherActor->GetName());
-
 	ACGGamePlayer* player = Cast<ACGGamePlayer>(OtherActor);
 
 	if (player != nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Red, "Got Player!");
+		player->AddScore(ScoreValue);
+
+		// ensure coin is destroyed after granting score
+		Destroy();
 	}
 }
 

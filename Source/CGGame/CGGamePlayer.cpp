@@ -43,6 +43,16 @@ void ACGGamePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACGGamePlayer::HandleMoveRight);
 }
 
+void ACGGamePlayer::AddScore(int scoreToAdd)
+{
+	Score += scoreToAdd;
+}
+
+int ACGGamePlayer::GetScore() const
+{
+	return Score;
+}
+
 void ACGGamePlayer::HandleMoveForward(float axisValue)
 {
 	PlayerMesh->AddForce(FVector(PushForce, 0, 0) * axisValue);

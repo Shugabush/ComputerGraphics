@@ -29,6 +29,12 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	UFUNCTION(BlueprintCallable)
+		void AddScore(int scoreToAdd);
+	
+	UFUNCTION(BlueprintCallable)
+		int GetScore() const;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Player", meta = (AllowPrivateAccess = true))
@@ -39,6 +45,9 @@ private:
 	UFUNCTION()
 		void HandleMoveRight(float axisValue);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess=true))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess = true))
 		float PushForce = 10000;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		int Score = 0;
 };

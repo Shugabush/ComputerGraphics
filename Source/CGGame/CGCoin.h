@@ -23,9 +23,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-		void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
-private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	int PointValue = 1;
+		int ScoreValue = 1;
+	
+private:
+	UPROPERTY(VisibleAnywhere, Category = "Coin")
+	class UStaticMeshComponent* CoinMesh;
+
+	UFUNCTION()
+	void OnOverlapBegin(class AActor* OverlappedActor, class AActor* OtherActor);
 };
