@@ -31,9 +31,6 @@ void ACGGamePlayer::BeginPlay()
 	// Super refers to your base type (is it NOT a C++ keyword)
 	Super::BeginPlay();
 	
-	PlayerAudio->SetSound(RollSound);
-	PlayerAudio->Play();
-	PlayerAudio->SetVolumeMultiplier(0);
 }
 
 // Called every frame
@@ -114,11 +111,10 @@ void ACGGamePlayer::HandleJump()
 {
 	if (IsGrounded)
 	{
-		GEngine->AddOnScreenDebugMessage(0, 0.25f, FColor::Red, TEXT("Jumping"));
 		PlayerMesh->AddImpulse(FVector(0, 0, JumpImpulse));
 
 		// play jumping sound if available
-		if (JumpSound != nullptr)
+		if (LandSound != nullptr)
 		{
 			UGameplayStatics::PlaySound2D(GetWorld(), JumpSound);
 		}
