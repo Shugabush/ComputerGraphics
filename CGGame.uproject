@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{713C5F21-422D-56C4-9FB3-4E9F09450DA4}",
+	"EngineAssociation": "{72024174-42C2-1C13-4743-E7A1207A1CCA}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
@@ -9,7 +9,7 @@
 			"Type": "Runtime",
 			"LoadingPhase": "Default",
 			"AdditionalDependencies": [
-				"Engine"
+				"Engine", "UMG"
 			]
 		}
 	]
