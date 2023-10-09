@@ -4,6 +4,9 @@
 #include "CGGamePlayer.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ACGGamePlayer::ACGGamePlayer()
@@ -14,6 +17,9 @@ ACGGamePlayer::ACGGamePlayer()
 	// Setup a default for the PlayerMesh
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	PlayerMesh->SetSimulatePhysics(true);
+
+	PlayerAudio = CreateDefaultSubobject<UAudioComponent>("PlayerAudio");
+	PlayerAudio->SetupAttachment(PlayerMesh);
 
 	// Assign a root component to the Actor
 	RootComponent = PlayerMesh;
@@ -32,6 +38,43 @@ void ACGGamePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	bool wasGrounded = IsGrounded;
+
+	FHitResult hit;
+	bool didHit = GetWorld()->LineTraceSingleByChannel(hit, GetActorLocation(), GetActorLocation() + FVector(0, 0, -GroundTraceDistance), ECC_WorldStatic);
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0, 0, -GroundTraceDistance), FColor::Red);
+	IsGrounded = didHit;
+
+	if (!wasGrounded && IsGrounded)
+	{
+		// play landing sound if available
+		if (LandSound != nullptr)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), LandSound);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Landing sound is missing!"));
+		}
+	}
+
+	if (wasGrounded != IsGrounded)
+	{
+		PlayerAudio->SetSound(IsGrounded ? RollSound : WindSound);
+	}
+
+	FVector curVelocity = GetVelocity();
+	if (IsGrounded)
+	{
+		curVelocity.Z = 0;
+	}
+	float curSpeed = curVelocity.Size();
+
+	float rollingIntensity = curSpeed / TargetSpeed;
+	rollingIntensity = FMath::Min(rollingIntensity, 1.0f);
+
+	PlayerAudio->SetVolumeMultiplier(rollingIntensity);
+
 }
 
 // Called to bind functionality to input
@@ -41,6 +84,7 @@ void ACGGamePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACGGamePlayer::HandleMoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACGGamePlayer::HandleMoveRight);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACGGamePlayer::HandleJump);
 }
 
 void ACGGamePlayer::AddScore(int scoreToAdd)
@@ -61,5 +105,13 @@ void ACGGamePlayer::HandleMoveForward(float axisValue)
 void ACGGamePlayer::HandleMoveRight(float axisValue)
 {
 	PlayerMesh->AddForce(FVector(0, PushForce, 0) * axisValue);
+}
+
+void ACGGamePlayer::HandleJump()
+{
+	if (IsGrounded)
+	{
+
+	}
 }
 
