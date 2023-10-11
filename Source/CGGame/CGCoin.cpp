@@ -4,6 +4,7 @@
 #include "CGCoin.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "CGGamePlayer.h"
 
@@ -39,6 +40,7 @@ void ACGCoin::OnOverlapBegin(AActor* OverlappedActor, AActor* OtherActor)
 
 	if (player != nullptr)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), PickupSound);
 		player->AddScore(ScoreValue);
 
 		// ensure coin is destroyed after granting score
