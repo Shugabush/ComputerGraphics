@@ -41,18 +41,53 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FOnScoreChanged OnScoreChanged;
 
+	UFUNCTION(BlueprintCallable)
+		FVector GetGroundVelocity() const;
+
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Player", meta = (AllowPrivateAccess = true))
+	UPROPERTY(VisibleAnywhere, Category = "Player")
 		class UStaticMeshComponent* PlayerMesh;
+
+	UPROPERTY(VisibleAnywhere, Category = "Player")
+		class UAudioComponent* PlayerAudio;
 
 	UFUNCTION()
 		void HandleMoveForward(float axisValue);
 	UFUNCTION()
 		void HandleMoveRight(float axisValue);
+	UFUNCTION()
+		void HandleJump();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess = true))
 		float PushForce = 10000;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess = true))
+		float JumpImpulse = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess = true))
+		float TargetSpeed = 100.0f;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
 		int Score = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		float GroundTraceDistance = 75.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		bool IsGrounded = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player", meta = (AllowPrivateAccess = true))
+		float AirControl = 0.3f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		class USoundBase* LandSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		class USoundBase* JumpSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		class USoundBase* RollSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player", meta = (AllowPrivateAccess = true))
+		class USoundBase* WindSound;
 };

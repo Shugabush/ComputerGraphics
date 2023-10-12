@@ -4,6 +4,9 @@
 #include "CGGamePlayer.h"
 
 #include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 ACGGamePlayer::ACGGamePlayer()
@@ -15,6 +18,9 @@ ACGGamePlayer::ACGGamePlayer()
 	PlayerMesh = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	PlayerMesh->SetSimulatePhysics(true);
 
+	PlayerAudio = CreateDefaultSubobject<UAudioComponent>("PlayerAudio");
+	PlayerAudio->SetupAttachment(PlayerMesh);
+
 	// Assign a root component to the Actor
 	RootComponent = PlayerMesh;
 }
@@ -25,12 +31,52 @@ void ACGGamePlayer::BeginPlay()
 	// Super refers to your base type (is it NOT a C++ keyword)
 	Super::BeginPlay();
 	
+	PlayerAudio->SetSound(RollSound);
+	PlayerAudio->Play();
+	PlayerAudio->SetVolumeMultiplier(0);
 }
 
 // Called every frame
 void ACGGamePlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	bool wasGrounded = IsGrounded;
+
+	FHitResult hit;
+	bool didHit = GetWorld()->LineTraceSingleByChannel(hit, GetActorLocation(), GetActorLocation() + FVector(0, 0, -GroundTraceDistance), ECC_WorldStatic);
+	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation() + FVector(0, 0, -GroundTraceDistance), FColor::Red);
+	IsGrounded = didHit;
+
+	if (!wasGrounded && IsGrounded)
+	{
+		// play landing sound if available
+		if (LandSound != nullptr)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), LandSound);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Landing sound is missing!"));
+		}
+	}
+
+	if (wasGrounded != IsGrounded)
+	{
+		PlayerAudio->SetSound(IsGrounded ? RollSound : WindSound);
+	}
+
+	FVector curVelocity = GetVelocity();
+	if (IsGrounded)
+	{
+		curVelocity.Z = 0;
+	}
+	float curSpeed = curVelocity.Size();
+
+	float rollingIntensity = curSpeed / TargetSpeed;
+	rollingIntensity = FMath::Min(rollingIntensity, 1.0f);
+
+	PlayerAudio->SetVolumeMultiplier(rollingIntensity);
 
 }
 
@@ -41,6 +87,7 @@ void ACGGamePlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ACGGamePlayer::HandleMoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACGGamePlayer::HandleMoveRight);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACGGamePlayer::HandleJump);
 }
 
 void ACGGamePlayer::AddScore(int scoreToAdd)
@@ -55,6 +102,14 @@ int ACGGamePlayer::GetScore() const
 	return Score;
 }
 
+FVector ACGGamePlayer::GetGroundVelocity() const
+{
+	FVector curVelocity = GetVelocity();
+	curVelocity.Z = 0;
+
+	return curVelocity;
+}
+
 void ACGGamePlayer::HandleMoveForward(float axisValue)
 {
 	PlayerMesh->AddForce(FVector(PushForce, 0, 0) * axisValue);
@@ -63,5 +118,24 @@ void ACGGamePlayer::HandleMoveForward(float axisValue)
 void ACGGamePlayer::HandleMoveRight(float axisValue)
 {
 	PlayerMesh->AddForce(FVector(0, PushForce, 0) * axisValue);
+}
+
+void ACGGamePlayer::HandleJump()
+{
+	if (IsGrounded)
+	{
+		GEngine->AddOnScreenDebugMessage(0, 0.25f, FColor::Red, TEXT("Jumping"));
+		PlayerMesh->AddImpulse(FVector(0, 0, JumpImpulse));
+
+		// play jumping sound if available
+		if (JumpSound != nullptr)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), JumpSound);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Jump sound is missing!"));
+		}
+	}
 }
 

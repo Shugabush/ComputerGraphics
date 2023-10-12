@@ -25,6 +25,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
 		int ScoreValue = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = true))
+		class USoundBase* PickupSound;
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Coin")
