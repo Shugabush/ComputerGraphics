@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "CGGamePlayer.generated.h" // Always goes last
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int, NewScore);
+
 UCLASS()
 class CGGAME_API ACGGamePlayer : public APawn
 {
@@ -35,6 +37,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		int GetScore() const;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnScoreChanged OnScoreChanged;
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Player", meta = (AllowPrivateAccess = true))
